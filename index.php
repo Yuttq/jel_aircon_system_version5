@@ -205,7 +205,7 @@ checkAuth();
                             </a>
                         </div>
                         <div class="col-md-2 mb-3">
-                            <a href="scheduled_tasks.php" class="btn btn-outline-secondary btn-block w-100 shadow-sm" style="border-radius: 8px; padding: 10px 16px; font-weight: 500; border-width: 2px;">
+                            <a href="admin/scheduled_tasks.php" class="btn btn-outline-secondary btn-block w-100 shadow-sm" style="border-radius: 8px; padding: 10px 16px; font-weight: 500; border-width: 2px;">
                                 <i class="fas fa-clock me-2"></i>Scheduled Tasks
                             </a>
                         </div>
