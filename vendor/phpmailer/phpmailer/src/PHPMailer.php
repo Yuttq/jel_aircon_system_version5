@@ -249,16 +249,10 @@ class PHPMailer
     public $MessageDate = '';
 
     /**
-     * The email message ID.
-     * @var string
+     * Whether to throw exceptions.
+     * @var bool
      */
-    public $MessageID = '';
-
-    /**
-     * The email message date.
-     * @var string
-     */
-    public $MessageDate = '';
+    public $exceptions = false;
 
     /**
      * Constructor.

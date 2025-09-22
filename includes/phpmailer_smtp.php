@@ -23,20 +23,20 @@ function sendPHPMailerEmail($to, $subject, $message, $isHtml = true) {
         return false;
     }
     
-    $mail = new PHPMailer(true);
-    
     try {
+        $mail = new PHPMailer(true);
+        
         // Server settings
         $mail->isSMTP();
         $mail->Host = SMTP_HOST;
         $mail->SMTPAuth = true;
         $mail->Username = SMTP_USERNAME;
         $mail->Password = SMTP_PASSWORD;
-        $mail->SMTPSecure = SMTP_ENCRYPTION === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+        $mail->SMTPSecure = SMTP_ENCRYPTION === 'tls' ? 'tls' : 'ssl';
         $mail->Port = SMTP_PORT;
         
-        // Enable verbose debug output (for testing)
-        // $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        // Disable debug output for production
+        $mail->SMTPDebug = 0;
         
         // Recipients
         $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
@@ -52,15 +52,15 @@ function sendPHPMailerEmail($to, $subject, $message, $isHtml = true) {
         $result = $mail->send();
         
         if ($result) {
-            error_log("Email sent successfully to: $to");
+            error_log("PHPMailer email sent successfully to: $to");
             return true;
         } else {
-            error_log("Email sending failed to: $to");
+            error_log("PHPMailer email sending failed to: $to");
             return false;
         }
         
     } catch (Exception $e) {
-        error_log("PHPMailer Error: " . $mail->ErrorInfo);
+        error_log("PHPMailer Error: " . $e->getMessage());
         return false;
     }
 }

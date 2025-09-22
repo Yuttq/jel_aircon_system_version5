@@ -8,7 +8,7 @@ define('SMS_NOTIFICATIONS', false); // Disabled by default until SMS gateway is 
 define('SMTP_HOST', 'smtp.gmail.com'); // Change to your SMTP server
 define('SMTP_PORT', 587);
 define('SMTP_USERNAME', 'danielbalermo@gmail.com'); // Your email
-define('SMTP_PASSWORD', 'bvzexfdd fbfzhcya'); // Your app password
+define('SMTP_PASSWORD', 'bzyfvhbtpnnldjdi'); // Your app password
 define('SMTP_ENCRYPTION', 'tls'); // tls or ssl
 
 // Email Settings
