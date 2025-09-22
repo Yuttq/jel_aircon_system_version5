@@ -194,16 +194,18 @@ checkAuth();
                                 <i class="fas fa-link me-2"></i>Dev Links
                             </a>
                         </div>
-                        <div class="col-md-2 mb-3">
-                            <a href="test_email_simple.php" class="btn btn-outline-info btn-block w-100 shadow-sm" style="border-radius: 8px; padding: 10px 16px; font-weight: 500; border-width: 2px;">
-                                <i class="fas fa-paper-plane me-2"></i>Email Test
-                            </a>
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <a href="test_notifications.php" class="btn btn-outline-warning btn-block w-100 shadow-sm" style="border-radius: 8px; padding: 10px 16px; font-weight: 500; border-width: 2px;">
-                                <i class="fas fa-bell me-2"></i>Test Notifications
-                            </a>
-                        </div>
+                        <?php if (defined('SHOW_DEV_LINKS') && SHOW_DEV_LINKS): ?>
+                            <div class="col-md-2 mb-3">
+                                <a href="test_email_simple.php" class="btn btn-outline-info btn-block w-100 shadow-sm" style="border-radius: 8px; padding: 10px 16px; font-weight: 500; border-width: 2px;">
+                                    <i class="fas fa-paper-plane me-2"></i>Email Test
+                                </a>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <a href="test_notifications.php" class="btn btn-outline-warning btn-block w-100 shadow-sm" style="border-radius: 8px; padding: 10px 16px; font-weight: 500; border-width: 2px;">
+                                    <i class="fas fa-bell me-2"></i>Test Notifications
+                                </a>
+                            </div>
+                        <?php endif; ?>
                         <div class="col-md-2 mb-3">
                             <a href="admin/scheduled_tasks.php" class="btn btn-outline-secondary btn-block w-100 shadow-sm" style="border-radius: 8px; padding: 10px 16px; font-weight: 500; border-width: 2px;">
                                 <i class="fas fa-clock me-2"></i>Scheduled Tasks
@@ -235,6 +237,63 @@ checkAuth();
                 </div>
                 <div class="card-body p-0">
                     <div id="mini-calendar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Reminders (next 24h) -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Upcoming Reminders (next 24h)</h5>
+                    <a href="modules/bookings/" class="btn btn-sm btn-outline-secondary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                try {
+                                    $stmt = $pdo->prepare("SELECT b.*, c.first_name, c.last_name, s.name AS service_name
+                                                           FROM bookings b
+                                                           JOIN customers c ON b.customer_id = c.id
+                                                           JOIN services s ON b.service_id = s.id
+                                                           WHERE b.status IN ('confirmed','pending')
+                                                           AND b.reminder_sent = 0
+                                                           AND DATE(b.booking_date) = DATE(DATE_ADD(NOW(), INTERVAL 1 DAY))
+                                                           ORDER BY b.start_time ASC
+                                                           LIMIT 6");
+                                    $stmt->execute();
+                                    $rows = $stmt->fetchAll();
+                                    if ($rows) {
+                                        foreach ($rows as $r) {
+                                            echo '<tr>';
+                                            echo '<td>' . htmlspecialchars($r['first_name'] . ' ' . $r['last_name']) . '</td>';
+                                            echo '<td>' . htmlspecialchars($r['service_name']) . '</td>';
+                                            echo '<td>' . htmlspecialchars($r['booking_date']) . '</td>';
+                                            echo '<td>' . htmlspecialchars(substr($r['start_time'],0,5)) . '</td>';
+                                            echo '<td><span class="badge bg-' . getStatusBadge($r['status']) . '">' . ucfirst($r['status']) . '</span></td>';
+                                            echo '</tr>';
+                                        }
+                                    } else {
+                                        echo '<tr><td colspan="5" class="text-muted text-center">No reminders due in the next 24 hours.</td></tr>';
+                                    }
+                                } catch (Exception $e) {
+                                    echo '<tr><td colspan="5" class="text-muted text-center">Not available.</td></tr>';
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

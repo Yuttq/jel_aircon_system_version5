@@ -26,6 +26,11 @@ define('LOGIN_TIMEOUT', 900); // 15 minutes
 // Include security manager first
 require_once 'security.php';
 
+// Feature flags / environment toggles
+if (!defined('SHOW_DEV_LINKS')) {
+    define('SHOW_DEV_LINKS', true); // set to false for production
+}
+
 // Initialize security manager
 $security = SecurityManager::getInstance();
 

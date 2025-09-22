@@ -30,6 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['run_now'])) {
             echo "[" . date('Y-m-d H:i:s') . "] scheduled_tasks.php not found";
         }
         $runOutput = ob_get_clean();
+        // Derive quick summary (reminders sent) and persist run history
+        $sent = 0;
+        if (preg_match('/Sent\s+(\d+)\s+reminder notifications/i', $runOutput, $m)) {
+            $sent = (int)$m[1];
+        }
+        $historyLine = sprintf("%s | sent=%d", $runTime, $sent);
+        @file_put_contents(__DIR__ . '/../logs/scheduled_runs.log', $historyLine . "\n", FILE_APPEND);
     } catch (Throwable $t) {
         $error = 'Run failed: ' . $t->getMessage();
         if (ob_get_length()) { ob_end_clean(); }
@@ -47,6 +54,8 @@ function readTail($filePath, $maxLines = 100) {
 
 $emailLogPath = realpath(__DIR__ . '/../emails/email_log.txt') ?: (__DIR__ . '/../emails/email_log.txt');
 $recentEmailLog = readTail($emailLogPath, 80);
+$runLogPath = realpath(__DIR__ . '/../logs/scheduled_runs.log') ?: (__DIR__ . '/../logs/scheduled_runs.log');
+$recentRunLog = readTail($runLogPath, 5);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,6 +96,17 @@ $recentEmailLog = readTail($emailLogPath, 80);
             <?php else: ?>
                 <div class="text-muted">No run output yet. Click "Run Reminders Now".</div>
             <?php endif; ?>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Recent Runs (last 5)</label>
+                    <?php if ($recentRunLog !== ''): ?>
+                        <pre class="bg-light p-3" style="white-space:pre-wrap; max-height: 200px; overflow:auto;"><?= htmlspecialchars($recentRunLog) ?></pre>
+                    <?php else: ?>
+                        <div class="text-muted">No recent run history yet.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
 
