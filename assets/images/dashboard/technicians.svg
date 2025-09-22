@@ -1,0 +1,38 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="technicianGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6f42c1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5a32a3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Technician card background -->
+  <rect width="200" height="200" rx="10" fill="white" stroke="#e0e0e0" stroke-width="1"/>
+  
+  <!-- Technician icon -->
+  <g transform="translate(100, 80)">
+    <!-- Technician figure -->
+    <circle cx="0" cy="-10" r="12" fill="url(#technicianGradient)"/>
+    <rect x="-8" y="0" width="16" height="20" rx="3" fill="url(#technicianGradient)"/>
+    
+    <!-- Tools -->
+    <g transform="translate(-25, 5)">
+      <rect x="0" y="0" width="15" height="3" fill="#666"/>
+      <rect x="6" y="-6" width="3" height="15" fill="#666"/>
+    </g>
+    
+    <g transform="translate(15, 5)">
+      <rect x="0" y="0" width="12" height="3" fill="#666"/>
+      <rect x="4" y="-4" width="4" height="11" fill="#666"/>
+    </g>
+    
+    <!-- Hard hat -->
+    <ellipse cx="0" cy="-15" rx="15" ry="8" fill="#ffc107"/>
+    <rect x="-12" y="-20" width="24" height="5" fill="#ffc107"/>
+  </g>
+  
+  <!-- Technician text -->
+  <text x="100" y="130" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Technicians</text>
+  <text x="100" y="150" text-anchor="middle" fill="#666" font-family="Arial, sans-serif" font-size="10">Manage service</text>
+  <text x="100" y="165" text-anchor="middle" fill="#666" font-family="Arial, sans-serif" font-size="10">technicians</text>
+</svg>

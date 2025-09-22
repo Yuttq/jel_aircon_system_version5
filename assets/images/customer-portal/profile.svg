@@ -1,0 +1,30 @@
+<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="profileGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a90e2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#357abd;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Profile card background -->
+  <rect width="150" height="150" rx="15" fill="white" stroke="#e0e0e0" stroke-width="1"/>
+  
+  <!-- Profile icon -->
+  <g transform="translate(75, 60)">
+    <!-- User avatar -->
+    <circle cx="0" cy="0" r="25" fill="url(#profileGradient)"/>
+    
+    <!-- User head -->
+    <circle cx="0" cy="-5" r="12" fill="white"/>
+    
+    <!-- User body -->
+    <rect x="-8" y="5" width="16" height="20" rx="8" fill="white"/>
+    
+    <!-- User initials placeholder -->
+    <text x="0" y="3" text-anchor="middle" fill="#4a90e2" font-family="Arial, sans-serif" font-size="16" font-weight="bold">U</text>
+  </g>
+  
+  <!-- Profile text -->
+  <text x="75" y="110" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Profile</text>
+  <text x="75" y="130" text-anchor="middle" fill="#666" font-family="Arial, sans-serif" font-size="10">Manage your account</text>
+</svg>

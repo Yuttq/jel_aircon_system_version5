@@ -1,0 +1,5 @@
+2025-09-20 18:54:27 | sent | To: jane.smith@email.com | Subject: Booking Confirmation - JEL Air Conditioning Services | File: emails/email_2025-09-20_18-54-27_68cedc4371674.html
+2025-09-20 18:54:27 | sent | To: jane.smith@email.com | Subject: Booking Status Update - JEL Air Conditioning | File: emails/email_2025-09-20_18-54-27_68cedc4373b94.html
+2025-09-20 18:54:27 | sent | To: jane.smith@email.com | Subject: Payment Received - JEL Air Conditioning | File: emails/email_2025-09-20_18-54-27_68cedc437822d.html
+2025-09-20 18:54:27 | sent | To: jane.smith@email.com | Subject: Technician Assigned - JEL Air Conditioning | File: emails/email_2025-09-20_18-54-27_68cedc438254b.html
+2025-09-20 18:54:27 | sent | To: jane.smith@email.com | Subject: Reminder: Upcoming Service - JEL Air Conditioning | File: emails/email_2025-09-20_18-54-27_68cedc4385b75.html
