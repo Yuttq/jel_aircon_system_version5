@@ -4,6 +4,45 @@
  * A lightweight alternative to PHPMailer for basic SMTP functionality
  */
 
+/**
+ * Read SMTP response and handle multi-line replies (e.g., 250- ... 250 )
+ */
+function readSmtpResponse($socket, $expectedCode, array &$log = null) {
+    $response = '';
+    while (true) {
+        $line = fgets($socket, 512);
+        if ($log !== null) {
+            $timestamp = date('Y-m-d H:i:s');
+            $log[] = "[$timestamp] <= " . trim((string)$line);
+        }
+        if ($line === false) {
+            throw new Exception("SMTP read failed while expecting $expectedCode");
+        }
+        $response .= $line;
+        if (strlen($line) >= 4) {
+            $code = substr($line, 0, 3);
+            $sep = substr($line, 3, 1);
+            if ($sep === ' ' && $code === (string)$expectedCode) {
+                break;
+            }
+            if ($sep === ' ' && $code !== (string)$expectedCode) {
+                // Completed another code; stop and let caller validate
+                break;
+            }
+            // If '-' then continuation; keep reading
+        } else {
+            break;
+        }
+    }
+    // Validate last line starts with expected code
+    $lines = preg_split("/\r?\n/", trim($response));
+    $last = end($lines);
+    if (substr((string)$last, 0, 3) !== (string)$expectedCode) {
+        throw new Exception("Unexpected SMTP response while expecting $expectedCode: $last");
+    }
+    return $response;
+}
+
 // Stores the last SMTP error for diagnostics
 if (!isset($GLOBALS['LAST_SMTP_ERROR'])) {
     $GLOBALS['LAST_SMTP_ERROR'] = '';
@@ -33,26 +72,20 @@ function sendSMTPEmail($to, $subject, $message, $isHtml = true) {
         stream_set_timeout($socket, 15);
         
         // Read initial response
-        $response = fgets($socket, 512);
-        $writeLog("CONNECT: $connectHost:" . SMTP_PORT . " -> $response");
-        if (substr($response, 0, 3) != '220') {
-            throw new Exception("SMTP server error: $response");
-        }
+        $response = readSmtpResponse($socket, 220, $logSteps);
+        $writeLog("CONNECT: $connectHost:" . SMTP_PORT . " -> " . trim($response));
         
         // Send EHLO command
         $ehloHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
         fputs($socket, "EHLO " . $ehloHost . "\r\n");
-        $response = fgets($socket, 512);
-        $writeLog("EHLO: $response");
+        $response = readSmtpResponse($socket, 250, $logSteps);
+        $writeLog("EHLO: " . trim($response));
         
         // Start TLS if required
         if (defined('SMTP_ENCRYPTION') && SMTP_ENCRYPTION === 'tls') {
             fputs($socket, "STARTTLS\r\n");
-            $response = fgets($socket, 512);
-            $writeLog("STARTTLS: $response");
-            if (substr($response, 0, 3) != '220') {
-                throw new Exception("STARTTLS failed: $response");
-            }
+            $response = readSmtpResponse($socket, 220, $logSteps);
+            $writeLog("STARTTLS: " . trim($response));
             
             // Enable crypto
             if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
@@ -61,31 +94,22 @@ function sendSMTPEmail($to, $subject, $message, $isHtml = true) {
             
             // Send EHLO again after TLS
             fputs($socket, "EHLO " . $ehloHost . "\r\n");
-            $response = fgets($socket, 512);
-            $writeLog("EHLO (after TLS): $response");
+            $response = readSmtpResponse($socket, 250, $logSteps);
+            $writeLog("EHLO (after TLS): " . trim($response));
         }
         
         // Authenticate
         fputs($socket, "AUTH LOGIN\r\n");
-        $response = fgets($socket, 512);
-        $writeLog("AUTH LOGIN -> $response");
-        if (substr($response, 0, 3) != '334') {
-            throw new Exception("AUTH LOGIN failed: $response");
-        }
+        $response = readSmtpResponse($socket, 334, $logSteps);
+        $writeLog("AUTH LOGIN -> " . trim($response));
         
         fputs($socket, base64_encode(SMTP_USERNAME) . "\r\n");
-        $response = fgets($socket, 512);
-        $writeLog("USERNAME -> $response");
-        if (substr($response, 0, 3) != '334') {
-            throw new Exception("Username authentication failed: $response");
-        }
+        $response = readSmtpResponse($socket, 334, $logSteps);
+        $writeLog("USERNAME -> " . trim($response));
         
         fputs($socket, base64_encode(SMTP_PASSWORD) . "\r\n");
-        $response = fgets($socket, 512);
-        $writeLog("PASSWORD -> $response");
-        if (substr($response, 0, 3) != '235') {
-            throw new Exception("Password authentication failed: $response");
-        }
+        $response = readSmtpResponse($socket, 235, $logSteps);
+        $writeLog("PASSWORD -> " . trim($response));
         
         // Send MAIL FROM
         fputs($socket, "MAIL FROM: <" . EMAIL_FROM . ">\r\n");
@@ -99,14 +123,14 @@ function sendSMTPEmail($to, $subject, $message, $isHtml = true) {
         fputs($socket, "RCPT TO: <$to>\r\n");
         $response = fgets($socket, 512);
         $writeLog("RCPT TO -> $response");
-        if (substr($response, 0, 3) != '250') {
+        if (substr($response, 0, 3) != '250' && substr($response, 0, 3) != '251') {
             throw new Exception("RCPT TO failed: $response");
         }
         
         // Send DATA
         fputs($socket, "DATA\r\n");
-        $response = fgets($socket, 512);
-        $writeLog("DATA -> $response");
+        $response = readSmtpResponse($socket, 354, $logSteps);
+        $writeLog("DATA -> " . trim($response));
         if (substr($response, 0, 3) != '354') {
             throw new Exception("DATA command failed: $response");
         }
@@ -121,8 +145,8 @@ function sendSMTPEmail($to, $subject, $message, $isHtml = true) {
         $headers .= "\r\n";
         
         fputs($socket, $headers . $message . "\r\n.\r\n");
-        $response = fgets($socket, 512);
-        $writeLog("END DATA -> $response");
+        $response = readSmtpResponse($socket, 250, $logSteps);
+        $writeLog("END DATA -> " . trim($response));
         if (substr($response, 0, 3) != '250') {
             throw new Exception("Email sending failed: $response");
         }

@@ -1,4 +1,7 @@
 <?php
+// Production: do not show PHP errors on this page
+ini_set('display_errors', 0);
+error_reporting(0);
 /**
  * Test PHPMailer Installation
  * Check if PHPMailer is properly installed and working
@@ -86,7 +89,7 @@ echo "<div class='test-box'>";
 echo "<h2>3. PHPMailer Functionality Test</h2>";
 
 try {
-    require_once 'includes/config.php';
+    // Load only what is needed for SMTP, avoid app globals that may override errors
     require_once 'includes/notification_config.php';
     require_once 'includes/phpmailer_smtp.php';
     
@@ -104,7 +107,7 @@ try {
         echo "<p class='info'>Check your inbox for the test email.</p>";
     } else {
         echo "<p class='error'>❌ PHPMailer email failed to send</p>";
-        echo "<p class='info'>This might be due to SMTP configuration issues.</p>";
+        echo "<p class='info'>Email sending failed. Please verify credentials or try again later.</p>";
     }
     
 } catch (Exception $e) {
@@ -133,6 +136,7 @@ try {
         echo "<p class='info'>This function automatically uses PHPMailer if available.</p>";
     } else {
         echo "<p class='error'>❌ Enhanced SMTP email failed to send</p>";
+        echo "<p class='info'>Email sending failed. Please verify credentials or try again later.</p>";
     }
     
 } catch (Exception $e) {

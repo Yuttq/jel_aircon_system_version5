@@ -231,6 +231,12 @@ class PHPMailer
     public $Encoding = '8bit';
 
     /**
+     * Debug output handler or format.
+     * @var mixed
+     */
+    public $Debugoutput = null;
+
+    /**
      * The email priority.
      * @var int
      */
@@ -436,8 +442,8 @@ class PHPMailer
         $headers = $this->getHeaders();
         $message = $this->getMessage();
         
-        // Use the existing sendSMTPEmail function
-        return sendSMTPEmail($this->to[0]['email'], $this->Subject, $this->Body, $this->isHTML);
+        // Use the existing global sendSMTPEmail function
+        return \sendSMTPEmail($this->to[0]['email'], $this->Subject, $this->Body, $this->isHTML);
     }
 
     /**

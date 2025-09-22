@@ -6,6 +6,8 @@
 
 // Load PHPMailer autoloader
 require_once __DIR__ . '/../vendor/autoload.php';
+// Ensure our custom SMTP helper is available for the PHPMailer stub
+require_once __DIR__ . '/simple_smtp.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -38,12 +40,9 @@ function sendPHPMailerEmail($to, $subject, $message, $isHtml = true) {
         $mail->SMTPSecure = SMTP_ENCRYPTION === 'tls' ? 'tls' : 'ssl';
         $mail->Port = SMTP_PORT;
         
-        // Enable detailed SMTP debug output (temporary for troubleshooting)
-        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
-        $mail->Debugoutput = function($str, $level) {
-            $line = date('Y-m-d H:i:s') . " [level $level] " . $str . "\n";
-            $GLOBALS['LAST_PHPMAILER_DEBUG'] .= $line;
-        };
+        // Disable verbose SMTP debug output for production
+        $mail->SMTPDebug = 0;
+        // $mail->Debugoutput can remain set for future troubleshooting if needed
         
         // Recipients
         $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
