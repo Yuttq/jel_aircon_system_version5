@@ -6,11 +6,18 @@ define('SMS_NOTIFICATIONS', false); // Disabled by default until SMS gateway is 
 
 // Email Configuration - SMTP Settings
 define('SMTP_HOST', 'smtp.gmail.com'); // Change to your SMTP server
-define('SMTP_PORT', 587);
 define('SMTP_USERNAME', 'danielbalermo@gmail.com'); // Your email
 define('SMTP_PASSWORD', 'bzyfvhbtpnnldjdi'); // Your app password
-define('SMTP_ENCRYPTION', 'tls'); // tls or ssl
+// Switcher: choose 'ssl' (port 465) or 'tls' (port 587)
+define('SMTP_MODE', 'ssl'); // 'ssl' or 'tls'
 
+if (SMTP_MODE === 'ssl') {
+    define('SMTP_PORT', 465);
+    define('SMTP_ENCRYPTION', 'ssl');
+} else {
+    define('SMTP_PORT', 587);
+    define('SMTP_ENCRYPTION', 'tls');
+}
 // Email Settings
 define('EMAIL_FROM', 'danielbalermo@gmail.com'); // Must match SMTP_USERNAME
 define('EMAIL_FROM_NAME', 'JEL Air Conditioning Services');

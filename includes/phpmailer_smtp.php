@@ -25,6 +25,9 @@ function sendPHPMailerEmail($to, $subject, $message, $isHtml = true) {
     
     try {
         $mail = new PHPMailer(true);
+        // Prepare debug capture
+        if (!isset($GLOBALS['LAST_PHPMAILER_DEBUG'])) { $GLOBALS['LAST_PHPMAILER_DEBUG'] = ''; }
+        if (!isset($GLOBALS['LAST_PHPMAILER_ERROR'])) { $GLOBALS['LAST_PHPMAILER_ERROR'] = ''; }
         
         // Server settings
         $mail->isSMTP();
@@ -35,8 +38,12 @@ function sendPHPMailerEmail($to, $subject, $message, $isHtml = true) {
         $mail->SMTPSecure = SMTP_ENCRYPTION === 'tls' ? 'tls' : 'ssl';
         $mail->Port = SMTP_PORT;
         
-        // Disable debug output for production
-        $mail->SMTPDebug = 0;
+        // Enable detailed SMTP debug output (temporary for troubleshooting)
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        $mail->Debugoutput = function($str, $level) {
+            $line = date('Y-m-d H:i:s') . " [level $level] " . $str . "\n";
+            $GLOBALS['LAST_PHPMAILER_DEBUG'] .= $line;
+        };
         
         // Recipients
         $mail->setFrom(EMAIL_FROM, EMAIL_FROM_NAME);
@@ -53,13 +60,19 @@ function sendPHPMailerEmail($to, $subject, $message, $isHtml = true) {
         
         if ($result) {
             error_log("PHPMailer email sent successfully to: $to");
+            // Persist debug
+            @file_put_contents(__DIR__ . '/../emails/email_log.txt', "PHPMailer SUCCESS to $to\n" . $GLOBALS['LAST_PHPMAILER_DEBUG'] . "\n", FILE_APPEND);
             return true;
         } else {
             error_log("PHPMailer email sending failed to: $to");
+            $GLOBALS['LAST_PHPMAILER_ERROR'] = $mail->ErrorInfo;
+            @file_put_contents(__DIR__ . '/../emails/email_log.txt', "PHPMailer FAIL to $to\nError: " . $mail->ErrorInfo . "\n" . $GLOBALS['LAST_PHPMAILER_DEBUG'] . "\n", FILE_APPEND);
             return false;
         }
         
     } catch (Exception $e) {
+        $GLOBALS['LAST_PHPMAILER_ERROR'] = $e->getMessage();
+        @file_put_contents(__DIR__ . '/../emails/email_log.txt', "PHPMailer EXCEPTION\n" . $e->getMessage() . "\n" . ($GLOBALS['LAST_PHPMAILER_DEBUG'] ?? '') . "\n", FILE_APPEND);
         error_log("PHPMailer Error: " . $e->getMessage());
         return false;
     }
